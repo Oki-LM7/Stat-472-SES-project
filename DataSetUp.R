@@ -38,15 +38,12 @@ dat_total <- merge(dat_before, dat_after, by.x = "studid", by.y = "StudentID")
 ##Can't find code for Q55 or sp45zip
 
 dat_use <- dat_total %>%
-  select(spr26calc2 , sq5initialc2, Q3FUS_Yes, Q3FUS_No, sqr26calc2,
-         sp43fatheduc, sp44motheduc, sp54homesup,
-         sp57work, sp57workl, sq39job, sq39jobl, 
-         sp59prep, sp59prepl,sq41prepareall, sq41preparealll, 
-         sp60career, sp61pay, sp61prevcalc, sqr25grade, sq48grade, sq48gradel,
-         sqr29enjoy, sqr36choice, 
-         sp47mpersonyou, sp47mpersonparent, sp47mpersonteach, sp47mpersonfriend,
-         sp41weak 
-  ) %>%
+  select(spr26calc2 , sq5initialc2, Q3FUS_Yes, Q3FUS_No, sqr26calc2, #switcher/persister
+         sp43fatheduc, sp44motheduc, sq39jobl, sp61pay, sq41preparealll, #SES
+         sp54homesup, sp47mpersonparent, #home Support
+         sp41weak, sqr25grade, sqr29confident, #belief 
+         sq48gradel #actual
+         ) %>%
   dplyr::rename(Q26 = spr26calc2, Q5Post = sq5initialc2, Q3Post =sqr26calc2 ) %>%
   mutate(., switcher_group =
            case_when(
@@ -95,6 +92,75 @@ dat_use <- dat_total %>%
              is.na(Q26) & Q5Post == "Dont know/ Not sure/ N/A" &  Q3Post == "Dont know/ Not sure/ N/A" &
                Q3FUS_Yes == " " & Q3FUS_No == " " ~ 26
            )) %>%
-  mutate(is_switcher = switcher_group<12)
+  mutate(is_switcher = switcher_group<12) %>%
+  mutate(fath_educ = 
+           case_when(
+             sp43fatheduc == "Did not finish high school" ~ TRUE,
+             sp43fatheduc == "High school" ~ TRUE,
+             sp43fatheduc == "Graduate school" ~ FALSE, 
+             sp43fatheduc == "Four years of college" ~ FALSE,
+             sp43fatheduc == "Some college" ~ FALSE
+           )) %>%
+  mutate(moth_educ = 
+           case_when(
+             sp44motheduc == "Did not finish high school" ~ TRUE,
+             sp44motheduc == "High school" ~ TRUE,
+             sp44motheduc == "Graduate school" ~ FALSE, 
+             sp44motheduc == "Four years of college" ~ FALSE,
+             sp44motheduc == "Some college" ~ FALSE
+           )) %>%
+  mutate(work = sq39jobl >10) %>%
+  mutate(class = sq41preparealll <15) %>%
+  mutate(pay = 
+           case_when(
+             sp61pay == "Strongly disagree" ~ FALSE,
+             sp61pay == "Disagree" ~ FALSE,
+             sp61pay == "Slightly disagree" ~ FALSE,
+             sp61pay == "Strongly agree" ~ TRUE,
+             sp61pay == "Agree" ~ TRUE,
+             sp61pay == "Slightly agree" ~ TRUE
+           )) %>%
+  na.omit() %>%
+  mutate(sum_ses = fath_educ + moth_educ + work + class +pay) %>%
+  mutate(low_ses = sum_ses > 2) %>%
+  mutate(weak = 
+           case_when(
+             sp41weak == "Strongly disagree" ~ FALSE,
+             sp41weak == "Disagree" ~ FALSE,
+             sp41weak == "Slightly disagree" ~ FALSE,
+             sp41weak == "Strongly agree" ~ TRUE,
+             sp41weak == "Agree" ~ TRUE,
+             sp41weak == "Slightly agree" ~ TRUE
+           )) %>%
+  mutate(end_grad = sqr25grade > 2) %>%
+  mutate(ability = 
+           case_when(
+             sqr29confident == "Strongly disagree" ~ TRUE,
+             sqr29confident == "Disagree" ~ TRUE,
+             sqr29confident == "Slightly disagree" ~ TRUE,
+             sqr29confident == "Strongly agree" ~ FALSE,
+             sqr29confident == "Agree" ~ FALSE,
+             sqr29confident == "Slightly agree" ~ FALSE
+           )) %>%
+  mutate(sum_belief = weak + end_grad + ability) %>%
+  mutate(belief = sum_belief > 1) %>%
+  mutate(homesupp = 
+           case_when(
+             sp54homesup == "Strongly" ~ FALSE, 
+             sp54homesup == "Very strongly" ~FALSE,
+             sp54homesup == "Somewhat" ~ TRUE,
+             sp54homesup == "Not at all" ~ TRUE
+           )) %>%
+  mutate(parent_belief = as.numeric(sp47mpersonparent) < 3) %>%
+  mutate(sum_home = homesupp + parent_belief) %>%
+  mutate(home = sum_home > 0)
+  
+  
+  
 
 final_data <- na.omit(dat_use)
+
+#is_swither - true is student is a switcher, false if persister
+#low_ses - true if student is low ses, false if high ses
+#belief - true if student DID NOT believe in themself, false if the DID believe in them selves
+#home - true is student DID NOT HAVE home support, false if student HAD home support
