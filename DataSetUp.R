@@ -143,7 +143,7 @@ dat_use <- dat_total %>%
              sqr29confident == "Slightly agree" ~ FALSE
            )) %>%
   mutate(sum_belief = weak + end_grad + ability) %>%
-  mutate(belief = sum_belief > 1) %>%
+  mutate(no_belief = sum_belief > 1) %>%
   mutate(homesupp = 
            case_when(
              sp54homesup == "Strongly" ~ FALSE, 
@@ -153,7 +153,7 @@ dat_use <- dat_total %>%
            )) %>%
   mutate(parent_belief = as.numeric(sp47mpersonparent) < 3) %>%
   mutate(sum_home = homesupp + parent_belief) %>%
-  mutate(home = sum_home > 0)
+  mutate(no_home_supp = sum_home > 0)
   
   
   
@@ -162,5 +162,5 @@ final_data <- na.omit(dat_use)
 
 #is_swither - true is student is a switcher, false if persister
 #low_ses - true if student is low ses, false if high ses
-#belief - true if student DID NOT believe in themself, false if the DID believe in them selves
-#home - true is student DID NOT HAVE home support, false if student HAD home support
+#no_belief - true if student DID NOT believe in themself, false if the DID believe in them selves
+#no_home_supp - true is student DID NOT HAVE home support, false if student HAD home support
