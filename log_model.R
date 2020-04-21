@@ -17,7 +17,7 @@ glm_original = glm(is_switcher ~ low_ses + no_belief + no_home_supp, data = trai
 
 # Predict responses with testing data set
 switch_pred = predict.glm(glm_original, newdata = test, type = "response")
-# If probability is greater than .5, then true
+# If probability is greater than 0.5, then true
 switch_pred = ifelse(switch_pred > 0.5, 1, 0)
 # Checking accuracy
 t1 = table(truth = test$is_switcher, pred = switch_pred)
