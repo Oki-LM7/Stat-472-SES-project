@@ -8,7 +8,7 @@ train = final_data[samp,]
 test = final_data[-samp,]
 
 # Build logistic model
-glm_original = glm(is_switcher ~ low_ses + no_belief + no_home_supp data = train,
+glm_original = glm(is_switcher ~ low_ses + no_belief + no_home_supp, data = train,
                    family = binomial(link = "logit"))
 # Playing with model, has better accuracy
 # glm1 = glm(is_switcher ~ low_ses + no_belief + no_home_supp + sqr25grade + 
@@ -16,7 +16,7 @@ glm_original = glm(is_switcher ~ low_ses + no_belief + no_home_supp data = train
 #            family = binomial(link = "logit"))
 
 # Predict responses with testing data set
-switch_pred = predict.glm(glm1, newdata = test, type = "response")
+switch_pred = predict.glm(glm_original, newdata = test, type = "response")
 # If probability is greater than .5, then true
 switch_pred = ifelse(switch_pred > 0.5, 1, 0)
 # Checking accuracy
