@@ -95,10 +95,18 @@ dat_use <- dat_total %>%
              sp44motheduc == "Four years of college" ~ 4,
              sp44motheduc == "Some college" ~ 3
            )) %>%
-  
-  mutate(work = sq39jobl >10) %>%
-  mutate(class = sq41preparealll <15) %>%
-  mutate(pay = 
+  mutate(work_tf = sq39jobl >10) %>%
+  mutate(work_scale = 
+           case_when(
+             sq39jobl == 0.0 ~ 0,
+             sq39jobl == 3.0 ~ 1, 
+             sq39jobl == 8.0 ~ 2,
+             sq39jobl == 13.0 ~ 3,
+             sq39jobl == 18.0 ~ 4,
+             sq39jobl == 25.5 ~ 5,
+             sq39jobl == 35.0 ~ 6
+           )) %>%
+  mutate(pay_tf = 
            case_when(
              sp61pay == "Strongly disagree" ~ FALSE,
              sp61pay == "Disagree" ~ FALSE,
@@ -107,10 +115,16 @@ dat_use <- dat_total %>%
              sp61pay == "Agree" ~ TRUE,
              sp61pay == "Slightly agree" ~ TRUE
            )) %>%
-  na.omit() %>%
-  mutate(sum_ses = fath_educ + moth_educ + work + class +pay) %>%
-  mutate(low_ses = sum_ses > 2) %>%
-  mutate(weak = 
+  mutate(pay_scale = 
+           case_when(
+             sp61pay == "Strongly disagree" ~ 1,
+             sp61pay == "Disagree" ~ 2,
+             sp61pay == "Slightly disagree" ~ 3,
+             sp61pay == "Strongly agree" ~ 6,
+             sp61pay == "Agree" ~ 5,
+             sp61pay == "Slightly agree" ~ 4
+           )) %>%
+  mutate(weak_tf = 
            case_when(
              sp41weak == "Strongly disagree" ~ FALSE,
              sp41weak == "Disagree" ~ FALSE,
@@ -119,35 +133,67 @@ dat_use <- dat_total %>%
              sp41weak == "Agree" ~ TRUE,
              sp41weak == "Slightly agree" ~ TRUE
            )) %>%
-  mutate(end_grad = sqr25grade > 2) %>%
-  mutate(ability = 
+  mutate(weak_scale = 
            case_when(
-             sqr29confident == "Strongly disagree" ~ TRUE,
-             sqr29confident == "Disagree" ~ TRUE,
-             sqr29confident == "Slightly disagree" ~ TRUE,
-             sqr29confident == "Strongly agree" ~ FALSE,
-             sqr29confident == "Agree" ~ FALSE,
-             sqr29confident == "Slightly agree" ~ FALSE
+             sp41weak == "Strongly disagree" ~ 1,
+             sp41weak == "Disagree" ~ 2,
+             sp41weak == "Slightly disagree" ~ 3,
+             sp41weak == "Strongly agree" ~ 6,
+             sp41weak == "Agree" ~ 5,
+             sp41weak == "Slightly agree" ~ 4
            )) %>%
-  mutate(sum_belief = weak + end_grad + ability) %>%
-  mutate(no_belief = sum_belief > 1) %>%
-  mutate(homesupp = 
+  mutate(no_homesupp_tf = 
            case_when(
              sp54homesup == "Strongly" ~ FALSE, 
              sp54homesup == "Very strongly" ~FALSE,
              sp54homesup == "Somewhat" ~ TRUE,
              sp54homesup == "Not at all" ~ TRUE
            )) %>%
-  mutate(parent_belief = as.numeric(sp47mpersonparent) < 3) %>%
-  mutate(sum_home = homesupp + parent_belief) %>%
-  mutate(no_home_supp = sum_home > 0)
+  mutate(no_homesupp_scale = 
+           case_when(
+             sp54homesup == "Strongly" ~ 3, 
+             sp54homesup == "Very strongly" ~4,
+             sp54homesup == "Somewhat" ~ 2,
+             sp54homesup == "Not at all" ~ 1
+           )) %>%
+  mutate(no_conf_tf = 
+           case_when(
+             sqr29confident == "Strongly disagree" ~ 1,
+             sqr29confident == "Disagree" ~ 2,
+             sqr29confident == "Slightly disagree" ~ 3,
+             sqr29confident == "Strongly agree" ~ 6,
+             sqr29confident == "Agree" ~ 5,
+             sqr29confident == "Slightly agree" ~ 4
+           )) %>%
+  mutate(endgrade_letter = sq48gradel) %>%
+  mutate(endgrade_tf = sq48gradel >3.4) %>%
+  mutate(endgrade_goodbad = 
+           case_when(
+             sq48gradel < 1.9 ~ 0, 
+             (sq48gradel >1.9 & sq48gradel < 3.5) ~ 1,
+             sq48gradel >= 3.5 ~ 2
+           )) %>%
+  mutate(endgreade_letter_rounded = 
+           case_when(
+             sq48gradel  < 0.6 ~ 1, #F
+             (sq48gradel >0.6 & sq48gradel < 1.6) ~ 2, #D
+             (sq48gradel >1.6 & sq48gradel < 2.6) ~ 3, #C
+             (sq48gradel >2.6 & sq48gradel < 3.6) ~ 3, #B
+             sq48gradel >3.6 ~ 4 #A
+           )) %>%
+  mutate(parent =
+           case_when(
+             sp47mpersonparent == "Not at all" ~ 0,
+             sp47mpersonparent == "1" ~ 1, 
+             sp47mpersonparent == "2" ~ 2, 
+             sp47mpersonparent =="3" ~ 3, 
+             sp47mpersonparent == "4" ~ 4, 
+             sp47mpersonparent == "Very much" ~ 5))
 
 
+  
 
 
 final_data <- na.omit(dat_use)
 
-#is_swither - true is student is a switcher, false if persister
-#low_ses - true if student is low ses, false if high ses
-#no_belief - true if student DID NOT believe in themself, false if the DID believe in them selves
-#no_home_supp - true is student DID NOT HAVE home support, false if student HAD home support
+#see Variable Use.txt for variable explinations

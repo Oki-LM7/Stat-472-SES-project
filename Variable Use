@@ -1,0 +1,20 @@
+is_switcher = True for switcher, false for persister
+moth_educ_tf = True for highschool or lower, false otherwise
+moth_educ_scale = 1: Less than highschool, 2: Highschool, 3:some college, 4: 4 year degree, 5: Grad school
+fath_educ_tf  = True for highschool or lower, false other wise
+fath_educ_scale = 1: Less than highschool, 2: Highschool, 3:some college, 4: 4 year degree, 5: Grad school
+work_tf = True for more than 10 hours of work a week, False for othewise
+work_scale = 0: 0hrs, 1: 1-5hrs, 2: 6-10hrs, 3: 11-15hrs, 4: 16-20hrs, 5: 21-30hrs, 6: 30+hrs
+pay_tf = True is hard time paying for college, False otherwise 
+pay_scale = 1: Strongly disagree, 2: Disagree, 3: Slightly disagree, 4: Slightly agree, 5: Agree, 6: Strongly Agree
+weak_tf = True if answer to question "sp41weak" is agree, False if diagree 
+weak_scale = 1: Strongly disagree, 2: Disagree, 3: Slightly disagree, 4: Slightly agree, 5: Agree, 6: Strongly Agree
+no_homesupp_tf = True if no home support, false otherwise
+no_homesupp_scale = 1: not at all, 2: somewhat, 3: strongly, 4: very strongly
+no_conf_tf = True if not confident; False otherwise
+no_conf_scale = 1: Strongly disagree, 2: Disagree, 3: Slightly disagree, 4: Slightly agree, 5: Agree, 6: Strongly Agree
+endgrade_letter =  “A+”=4.33, “A”=4, “A-“=3.67, ... , “F”=0 (gpa equivilent)
+endgrade_tf = True if B (3.5) or higher, False if B- or lower
+endgrade_goodbad = 0:Under 70%, 1: C- to B-, 2: B to A+
+endgreade_letter_rounded = 0: F, 1:D, 2:C, 3:B, 4:A
+parent = does your parent see you as good at math scale 0-5, not at all to very good
