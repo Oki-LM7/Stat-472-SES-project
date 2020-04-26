@@ -1,0 +1,100 @@
+---
+title: "LDA"
+author: "Oki"
+date: "4/20/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(dplyr)
+
+
+#is_swither - true is student is a switcher, false if persister
+#low_ses - true if student is low ses, false if high ses
+#no_belief - true if student DID NOT believe in themself, false if the DID believe in them selves
+#no_home_supp - true is student DID NOT HAVE home support, false if student HAD home support
+
+# subset to only get the response and 3 predictors
+#source("/cloud/project/DataSetUP.R")
+modeldata = final_data %>%
+           dplyr::select(is_switcher, low_ses, no_belief,no_home_supp) 
+table(modeldata)
+
+# change predictor variables to numeric
+
+modeldata[,2:4] = apply(modeldata[,2:4],2,as.numeric)
+
+library(MASS)
+install.packages("caret")
+library(caret)
+
+set.seed(123)
+
+# split data into test and train
+training.samples <- modeldata$is_switcher %>%
+  createDataPartition(p = 0.8, list = FALSE)
+train.data <- modeldata[training.samples, ]
+test.data <- modeldata[-training.samples, ]
+
+
+ldamodel <- MASS::lda(is_switcher~., data = train.data)
+ldamodel
+
+#LD2  (1/2 mu1 +mu2 )^T *LD1
+#?MASS:::predict.lda()
+#library(klaR)
+#partimat(Species ~ ., data = iris, method = "qda", plot.matrix = TRUE, col.correct='green', col.wrong='red')
+
+mu1 =  ldamodel$means[1,]
+
+mu2 = ldamodel$means[2,]
+
+LDA1 =ldamodel$scaling
+LDA2 = t((mu1+mu2)*1/2) %*% LDA1
+
+predictions <- ldamodel %>% predict(test.data)
+names(predictions)
+
+#lda.data <- cbind(train.data, predictions$x)
+#ggplot(lda.data, aes(LD1, LD2)) +
+ # geom_point(aes(color = is_switcher))
+
+
+```
+
+
+
+
+```{r}
+# contours
+
+library(ggplot2)
+#library(devtools)
+#install_github("fawda123/ggord")
+
+
+
+
+```
+
+```{r}
+
+#ggord(ldamodel,train.data)
+
+p.df <- data.frame(LD1 = predictions$x, class = predictions$class) #--- converting the prediction to data.frame
+print(p.df)
+
+#--- plotting the density plot --- #
+library(ggplot2)
+ggplot(p.df) + geom_density(aes(LD1, fill = class), alpha = 0.2)+
+             
+
+```
+
+
+
