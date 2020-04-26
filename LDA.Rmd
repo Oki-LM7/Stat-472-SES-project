@@ -21,13 +21,21 @@ library(dplyr)
 
 # subset to only get the response and 3 predictors
 #source("/cloud/project/DataSetUP.R")
-modeldata = final_data %>%
-           dplyr::select(is_switcher, low_ses, no_belief,no_home_supp) 
-table(modeldata)
 
-# change predictor variables to numeric
 
-modeldata[,2:4] = apply(modeldata[,2:4],2,as.numeric)
+final_data <- final_data %>%
+  mutate(., is_switcher = case_when(
+    is_switcher == TRUE ~ 1,
+    is_switcher == FALSE ~ 0
+  )) %>%
+  select(., is_switcher, fath_educ_scale, moth_educ_scale, work_scale,
+         weak_scale, no_homesupp_scale, no_conf_tf) 
+
+final_data$is_switcher = factor(final_data$is_switcher, levels = c(0,1))
+
+
+modeldata = final_data
+           
 
 library(MASS)
 install.packages("caret")
@@ -45,17 +53,8 @@ test.data <- modeldata[-training.samples, ]
 ldamodel <- MASS::lda(is_switcher~., data = train.data)
 ldamodel
 
-#LD2  (1/2 mu1 +mu2 )^T *LD1
-#?MASS:::predict.lda()
-#library(klaR)
-#partimat(Species ~ ., data = iris, method = "qda", plot.matrix = TRUE, col.correct='green', col.wrong='red')
 
-mu1 =  ldamodel$means[1,]
 
-mu2 = ldamodel$means[2,]
-
-LDA1 =ldamodel$scaling
-LDA2 = t((mu1+mu2)*1/2) %*% LDA1
 
 predictions <- ldamodel %>% predict(test.data)
 names(predictions)
