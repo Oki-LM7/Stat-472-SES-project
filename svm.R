@@ -40,3 +40,29 @@ cm <- as.data.frame(table(test_set[,1], y_pred))
 colnames(cm) <- c("Actual Classification", "Prediction", "Frequency")
 formattable(cm, align = "l")
 
+accuracy = 143/171 #83.6%
+specificity = 141/142 #99.3% #prop of persisters who were correctly identified as such
+sensitivity = 2/29 #6.9% #prop of switchers who were correctly identified as such
+
+#can increase sensitivity by weighting switcher class higher, but this decreases specificity and overall accuracy
+#still very low sensitivity though
+
+classifier_weight <- svm(formula = is_switcher ~ .,
+                  data = training_set,
+                  kernel = 'radial',
+                  class.weights= c("0" = 1, "1" = 3))
+
+classifier_weight
+
+y_pred_weight <- predict(classifier_weight, test_set[,-1])
+
+y_pred_weight
+
+cm_weight <- as.data.frame(table(test_set[,1], y_pred_weight))
+colnames(cm_weight) <- c("Actual Classification", "Prediction", "Frequency")
+formattable(cm_weight, align = "l")
+
+#accuracy = 133/171 = 77.7%
+#sp = 128/142 = 90.1%
+#se = 5/29 = 17.2%
+
