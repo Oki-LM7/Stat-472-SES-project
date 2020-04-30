@@ -8,10 +8,10 @@ dat = mutate_each(dat, funs(as.factor), moth_educ_scale, fath_educ_scale, work_s
                   fath_educ_tf, work_tf, pay_tf, no_homesupp_tf,
                   no_conf_tf, endgrade_tf, parent)
 
-# Split data into 50/50 training and testing data set
+# Split data into 75/25 training and testing data set
 set.seed(472)
 n = nrow(dat)
-samp = sample(1:n, size = n * 0.5)
+samp = sample(1:n, size = n * 0.75)
 train = final_data[samp,]
 test = final_data[-samp,]
 
@@ -20,7 +20,7 @@ test = final_data[-samp,]
 glm_original = glm(is_switcher ~ moth_educ_tf + fath_educ_tf +
                      work_tf + pay_tf + weak_tf + no_homesupp_tf +
                      no_conf_tf + endgrade_tf,
-                     weights = ifelse(is_switcher == 1, 3, 1),
+                     weights = ifelse(is_switcher == 1, 4, 1),
                      data = train, family = binomial(link = "logit"))
 
 # Predict responses with testing data set
@@ -34,8 +34,16 @@ t1
 acc = sum(diag(t1))/sum(t1)
 acc
 
-# 4x's acc is 0.56
-# 3x's acc is 0.70
+# 4x's acc is 0.63
+# 3x's acc is 0.77
+
+
+
+
+
+
+
+
 
 # Random Forest
 rf = randomForest(is_switcher ~ moth_educ_tf + fath_educ_tf + 
