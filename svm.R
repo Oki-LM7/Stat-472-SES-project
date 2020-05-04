@@ -66,3 +66,23 @@ formattable(cm_weight, align = "l")
 #sp = 128/142 = 90.1%
 #se = 5/29 = 17.2%
 
+#making plot of tradeoff between specificity and sensitivity when weighting switchers
+switcher_weight = c(1,2,3,4,5,6,7,8,9,10)
+sp <- c(99.3, 95.8, 90.1, 74.6,70.4,63.4,56.3,52.1,49.3, 47.2)
+se <- c(6.9, 10.3, 17.2, 31.8, 31.0, 41.4, 48.3, 48.3, 48.3, 48.3)
+
+
+plot(switcher_weight, sp, type = "o", col = "blue", ylim = c(0,100), xlim = c(0,10), 
+     pch = 19, lwd = 2,
+     main = "Sensitivity vs Specificity When Weighting Switcher Class in SVM Model",
+     xlab = "Switcher Weight", ylab = "Sensitivity or Specificity Percentage")
+lines(switcher_weight,se, type = "o", col = "red", pch = 19, lwd = 2)
+legend("bottomright", legend = c("Specificity", "Sensitivity"), col = c("blue", "red"), pch = 19, lwd = 2, box.lty = 0)
+
+#ROC plot
+library(pROC)
+
+plot.roc(test_set$is_switcher, as.numeric(y_pred_weight), legacy.axes = FALSE,
+                col = "blue", main = "ROC plot for SVM Model",
+                ylab = "Sensitivity (Proportion of Switchers Correctly Identified)", xlab = "Specificity (Proportion of Persisters Correctly Identified)")
+
