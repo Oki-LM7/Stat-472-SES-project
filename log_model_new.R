@@ -62,14 +62,23 @@ stats = c(sens, spec, accs)
 weight = rep(1:n, 3)
 Measure = rep(c("Sensitivity", "Specificity", "Accuracy"), each = n)
 summ = data.frame(measure, stats, weight)
+
+# Plot 1
 ggplot(summ, aes(weight, stats, color = Measure)) + geom_line() + 
   scale_x_continuous(breaks = 1:n) +
-  labs(title = "Weight vs Sensitivity, Specificity, and Accuracy", x = "Weight", y = "Stats")
+  labs(title = "Weight vs Sensitivity, Specificity, and Accuracy", x = "Weight", y = "Stats") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  theme_test()
 
 # Sensitivity vs Specificity
 mes = data.frame(sens, spec)
+
+# Plot 2
 ggplot(mes, aes(spec, sens)) + geom_line() +
-  labs(title = "Specificity vs Sensitivity", x = "Specificity", y = "Sensitivity")
+  labs(title = "Specificity vs Sensitivity", x = "Specificity", y = "Sensitivity") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  theme_test()
+  
 
 # Changing work scale while holding everything else constant at 3
 vals = 1:6
@@ -86,5 +95,10 @@ for(i in 1:6){
   pred_vals[i] = pe[[i]]
 }
 pred_work = data.frame(vals, pred_vals)
+
+# Plot 3
 ggplot(pred_work, aes(vals, pred_vals)) + geom_line() + 
-  labs(title = "Switcher or Persistor given Confidence", x = "Confidence Scale", y = "Switcher or Persistor")
+  labs(title = "Switcher or Persister given Confidence", x = "Confidence Scale", y = "Switcher or Persister") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  theme_test()
+  
