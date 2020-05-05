@@ -1,5 +1,6 @@
 library(tidyverse)
-library(randomForest)
+library(ggplot2)
+library(caret)
 
 dat = final_data
 
@@ -17,9 +18,8 @@ test = final_data[-samp,]
 
 
 # Build logistic model
-glm_original = glm(is_switcher ~ moth_educ_tf + fath_educ_tf +
-                     work_tf + pay_tf + weak_tf + no_homesupp_tf +
-                     no_conf_tf + endgrade_tf,
+glm_original = glm(is_switcher ~ moth_educ_scale + fath_educ_scale +
+                     work_scale + weak_scale + no_homesupp_scale + no_conf_tf,
                      weights = ifelse(is_switcher == 1, 4, 1),
                      data = train, family = binomial(link = "logit"))
 
@@ -37,22 +37,52 @@ acc
 # 4x's acc is 0.63
 # 3x's acc is 0.77
 
+n = 10
+sens = 1:n
+spec = 1:n
+accs = 1:n
+for(i in 1:n){
+  glm_original = glm(is_switcher ~ moth_educ_scale + fath_educ_scale +
+                       work_scale + weak_scale + no_homesupp_scale + no_conf_tf,
+                     weights = ifelse(is_switcher == 1, i, 1),
+                     data = train, family = binomial(link = "logit"))
+  
+  # Predict responses with testing data set
+  switch_pred = predict.glm(glm_original, newdata = test, type = "response")
+  # If probability is greater than 0.5, then true
+  switch_pred = ifelse(switch_pred > 0.5, 1, 0)
+  t1 = table(pred = switch_pred, truth = test$is_switcher)
+  sens[i] = t1[1, 1]/(t1[1, 1] + t1[2, 1])
+  spec[i] = t1[2, 2]/(t1[1, 2] + t1[2, 2])
+  accs[i] = sum(diag(t1))/sum(t1)
+}
 
+# Weight vs Sensitivity and Specificity
+stats = c(sens,spec,accs)
+weight = rep(1:n, 3)
+measure = rep(c("Sensitivity","Specificity","Accuracy"), each = n)
+summ = data.frame(measure, stats, weight)
+ggplot(summ, aes(weight, stats, color = measure)) + geom_line() + 
+  scale_x_continuous(breaks = 1:n)
 
+# Sensitivity vs Specificity
+mes = data.frame(sens, spec)
+ggplot(mes, aes(spec, sens)) + geom_line()
 
-
-
-
-
-
-# Random Forest
-rf = randomForest(is_switcher ~ moth_educ_tf + fath_educ_tf + 
-                    work_tf + pay_tf + weak_tf + no_homesupp_tf + 
-                    no_conf_tf + endgrade_tf, 
-                    data = train,
-                    ntree = 500)
-rf_pred = predict(rf, newdata = test)
-t2 = table(truth = test$is_switcher, pred = rf_pred)
-t2
-acc = sum(diag(t2))/sum(t2)
-acc
+# Changing work scale while holding everything else constant at 3
+vals = 1:6
+con = 1
+pred_dat = data.frame(moth_educ_scale = con, fath_educ_scale = con,
+                      weak_scale = con, no_homesupp_scale = con,
+                      work_scale = con)
+pe = lapply(vals, function(j){
+  pred_dat$no_conf_tf = j
+  predict(glm_original, newdata = pred_dat, type = "response")
+})
+pred_vals = 1:6
+for(i in 1:6){
+  pred_vals[i] = pe[[i]]
+}
+pred_work = data.frame(vals, pred_vals)
+ggplot(pred_work, aes(vals, pred_vals)) + geom_line() + 
+  labs(x = "Confidence Scale", y = "Predicted Probabilities")
