@@ -57,17 +57,19 @@ for(i in 1:n){
   accs[i] = sum(diag(t1))/sum(t1)
 }
 
-# Weight vs Sensitivity and Specificity
-stats = c(sens,spec,accs)
+# Weight vs Sensitivity, Specificity, and Accuracy
+stats = c(sens, spec, accs)
 weight = rep(1:n, 3)
-measure = rep(c("Sensitivity","Specificity","Accuracy"), each = n)
+Measure = rep(c("Sensitivity", "Specificity", "Accuracy"), each = n)
 summ = data.frame(measure, stats, weight)
-ggplot(summ, aes(weight, stats, color = measure)) + geom_line() + 
-  scale_x_continuous(breaks = 1:n)
+ggplot(summ, aes(weight, stats, color = Measure)) + geom_line() + 
+  scale_x_continuous(breaks = 1:n) +
+  labs(title = "Weight vs Sensitivity, Specificity, and Accuracy", x = "Weight", y = "Stats")
 
 # Sensitivity vs Specificity
 mes = data.frame(sens, spec)
-ggplot(mes, aes(spec, sens)) + geom_line()
+ggplot(mes, aes(spec, sens)) + geom_line() +
+  labs(title = "Specificity vs Sensitivity", x = "Specificity", y = "Sensitivity")
 
 # Changing work scale while holding everything else constant at 3
 vals = 1:6
@@ -85,4 +87,4 @@ for(i in 1:6){
 }
 pred_work = data.frame(vals, pred_vals)
 ggplot(pred_work, aes(vals, pred_vals)) + geom_line() + 
-  labs(x = "Confidence Scale", y = "Predicted Probabilities")
+  labs(title = "Switcher or Persistor given Confidence", x = "Confidence Scale", y = "Switcher or Persistor")
