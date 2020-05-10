@@ -1,0 +1,105 @@
+---
+title: "LDA plots"
+author: "Oki"
+date: "5/9/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# create data set
+
+
+final_data <- final_data %>%
+  mutate(., is_switcher = case_when(
+    is_switcher == TRUE ~ 1,
+    is_switcher == FALSE ~ 0
+  )) %>%
+  select(., is_switcher, fath_educ_scale, moth_educ_scale, work_scale,
+         weak_scale, no_homesupp_scale, no_conf_tf) 
+
+#final_data$is_switcher = factor(final_data$is_switcher, levels = c(0,1))
+
+
+modeldata = final_data
+           
+
+library(MASS)
+install.packages("caret")
+library(caret)
+
+set.seed(123)
+
+# split data into test and train
+training.samples <- modeldata$is_switcher %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train.data <- modeldata[training.samples, ]
+test.data <- modeldata[-training.samples, ]
+
+
+
+
+```
+
+
+```{r}
+
+library(devtools)
+#install_github("Displayr/flipStandardCharts")
+install_github("Displayr/flipMultivariates")
+#usethis::browse_github_pat()
+library(flipMultivariates)
+
+
+#library(flipMultivariates)
+#lda <- LDA(class ~ ., data = vehicles)
+#fina
+lda4 = LDA(is_switcher~., data = train.data,
+            weight= ifelse(train.data$is_switcher==1,4,1))
+
+#print(lda3)
+
+
+
+
+predictions4 <- lda4 %>% predict(test.data)
+names(predictions3)
+
+# confusionn matrix
+cm4 <- as.data.frame(table(test.data$is_switcher, predictions4))
+colnames(cm4) <- c("Actual Classification", "Prediction", "Frequency")
+cm4
+
+
+```
+
+
+
+```{r}
+
+# create plots
+
+
+# ROC plot
+#install.packages("ROCR")
+library(pROC)
+## Type 'citation("pROC")' for a citation.
+## 
+## Attaching package: 'pROC'
+## The following objects are masked from 'package:stats':
+## 
+##     cov, smooth, var
+pROC_obj <- roc(test.data$is_switcher,as.numeric(predictions4),
+            smoothed = TRUE,
+            # arguments for ci
+            ci=TRUE, ci.alpha=0.9, stratified=FALSE,
+            # arguments for plot
+            plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE,
+            print.auc=TRUE, show.thres=TRUE)
+
+```
+
