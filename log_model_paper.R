@@ -20,8 +20,8 @@ test = final_data[-samp,]
 # Build logistic model
 glm_original = glm(is_switcher ~ moth_educ_scale + fath_educ_scale +
                      work_scale + weak_scale + no_homesupp_scale + no_conf_tf,
-                     weights = ifelse(is_switcher == 1, 3, 1),
-                     data = train, family = binomial(link = "logit"))
+                   weights = ifelse(is_switcher == 1, 3, 1),
+                   data = train, family = binomial(link = "logit"))
 
 # Predict responses with testing data set
 switch_pred = predict.glm(glm_original, newdata = test, type = "response")
@@ -33,9 +33,6 @@ t1
 # Checking accuracy
 acc = sum(diag(t1))/sum(t1)
 acc
-
-# 4x's acc is 0.63
-# 3x's acc is 0.77
 
 n = 10
 sens = 1:n
@@ -72,17 +69,6 @@ ggplot(summ, aes(weight, stats, color = Measure)) +
   theme_test() +
   scale_color_manual(breaks = c("Accuracy", "Specificity", "Sensitivity"),
                      values = c("red", "green", "blue"))
-  
-
-# Sensitivity vs Specificity
-mes = data.frame(sens, spec)
-
-# Plot 2
-ggplot(mes, aes(spec, sens)) + geom_line(color = 'blue') +
-  labs(title = "Specificity vs Sensitivity", x = "Specificity", y = "Sensitivity") +
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  theme_test()
-  
 
 # Changing work scale while holding everything else constant at 1
 vals = 1:6
@@ -105,4 +91,3 @@ ggplot(pred_work, aes(vals, pred_vals)) + geom_line(color = 'red') +
   labs(title = "Switcher or Persister given Confidence", x = "Confidence Scale", y = "Percentage of Switcher") +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
   theme_test()
-  
