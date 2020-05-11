@@ -52,23 +52,27 @@ for(i in 1:n){
   # If probability is greater than 0.5, then true
   switch_pred = ifelse(switch_pred > 0.5, 1, 0)
   t1 = table(pred = switch_pred, truth = test$is_switcher)
-  sens[i] = t1[1, 1]/(t1[1, 1] + t1[2, 1])
-  spec[i] = t1[2, 2]/(t1[1, 2] + t1[2, 2])
+  spec[i] = t1[1, 1]/(t1[1, 1] + t1[2, 1])
+  sens[i] = t1[2, 2]/(t1[1, 2] + t1[2, 2])
   accs[i] = sum(diag(t1))/sum(t1)
 }
 
 # Weight vs Sensitivity, Specificity, and Accuracy
-stats = c(sens, spec, accs)
+stats = c(accs, spec, sens)
 weight = rep(1:n, 3)
-Measure = rep(c("Sensitivity", "Specificity", "Accuracy"), each = n)
-summ = data.frame(measure, stats, weight)
+Measure = rep(c("Accuracy", "Specificity", "Sensitivity"), each = n)
+summ = data.frame(Measure, stats, weight)
 
 # Plot 1
-ggplot(summ, aes(weight, stats, color = Measure)) + geom_line() + 
+ggplot(summ, aes(weight, stats, color = Measure)) +
+  geom_line() + 
   scale_x_continuous(breaks = 1:n) +
   labs(title = "Weight vs Sensitivity, Specificity, and Accuracy", x = "Weight", y = "Stats") +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  theme_test()
+  theme_test() +
+  scale_color_manual(breaks = c("Accuracy", "Specificity", "Sensitivity"),
+                     values = c("red", "green", "blue"))
+  
 
 # Sensitivity vs Specificity
 mes = data.frame(sens, spec)
@@ -98,7 +102,7 @@ pred_work = data.frame(vals, pred_vals)
 
 # Plot 3
 ggplot(pred_work, aes(vals, pred_vals)) + geom_line(color = 'red') + 
-  labs(title = "Switcher or Persister given Confidence", x = "Confidence Scale", y = "Switcher or Persister") +
+  labs(title = "Switcher or Persister given Confidence", x = "Confidence Scale", y = "Percentage of Switcher") +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
   theme_test()
   
